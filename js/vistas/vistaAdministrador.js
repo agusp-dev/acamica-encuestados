@@ -18,21 +18,27 @@ VistaAdministrador.prototype = {
   //lista
   inicializar: function() {
     //llamar a los metodos para reconstruir la lista, configurar botones y validar formularios
+    this.reconstruirLista(),
+    this.configuracionDeBotones(),
     validacionDeFormulario();
   },
 
   construirElementoPregunta: function(pregunta){
     var contexto = this;
-    var nuevoItem;
+    var nuevoItem = document.createElement('li');
+    nuevoItem.className = 'list-group-item';
+    nuevoItem.id = pregunta.id;
+    nuevoItem.textContent = pregunta.textoPregunta;
     //completar
-    //asignar a nuevoitem un elemento li con clase "list-group-item", id "pregunta.id" y texto "pregunta.textoPregunta"
+    //asignar a nuevoitem un elemento li con clase "list-group-item", id "pregunta.id" y texto "pregunta.textoPregunta" //crear nuevo item? como asignarlo?
     var interiorItem = $('.d-flex');
     var titulo = interiorItem.find('h5');
     titulo.text(pregunta.textoPregunta);
     interiorItem.find('small').text(pregunta.cantidadPorRespuesta.map(function(resp){
       return " " + resp.textoRespuesta;
     }));
-    nuevoItem.html($('.d-flex').html());
+
+    nuevoItem.html($('.d-flex').html()); //OJO CON ESTO. LO COMENTO PORQUE DA ERROR.
     return nuevoItem;
   },
 
@@ -56,6 +62,7 @@ VistaAdministrador.prototype = {
 
       $('[name="option[]"]').each(function() {
         //completar
+        respuestas.push({'textoRespuesta':$(this).val(), 'cantidad': 0});
       })
       contexto.limpiarFormulario();
       contexto.controlador.agregarPregunta(value, respuestas);
