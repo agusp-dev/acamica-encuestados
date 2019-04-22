@@ -11,6 +11,10 @@ var VistaAdministrador = function(modelo, controlador, elementos) {
   this.modelo.preguntaAgregada.suscribir(function() {
     contexto.reconstruirLista();
   });
+
+  this.modelo.preguntaEliminada.suscribir(function() {
+    contexto.reconstruirLista();
+  });
 };
 
 
@@ -25,15 +29,15 @@ VistaAdministrador.prototype = {
 
   construirElementoPregunta: function(pregunta){
     var contexto = this;
-
-    var $nuevoItem = $("<li>")
-      .addClass("list-group-item")
-      .attr('id', pregunta.id)
-      .text(pregunta.textoPregunta);
-
-
     //completar
-    //asignar a nuevoitem un elemento li con clase "list-group-item", id "pregunta.id" y texto "pregunta.textoPregunta" //crear nuevo item? como asignarlo?
+    //asignar a nuevoitem un elemento li con clase "list-group-item", id "pregunta.id" y texto "pregunta.textoPregunta"
+    var $nuevoItem = $("<li>")
+    .addClass("list-group-item")
+    .attr('id', '' + pregunta.id)
+    .text(pregunta.textoPregunta);
+
+    console.log('id: ' + pregunta.id);
+
     var interiorItem = $('.d-flex');
     var titulo = interiorItem.find('h5');
     titulo.text(pregunta.textoPregunta);
@@ -42,6 +46,7 @@ VistaAdministrador.prototype = {
     }));
 
     $nuevoItem.html($('.d-flex').html());
+    console.log($nuevoItem);
     return $nuevoItem;
   },
 
@@ -71,6 +76,10 @@ VistaAdministrador.prototype = {
       contexto.controlador.agregarPregunta(value, respuestas);
     });
     //asociar el resto de los botones a eventos
+    e.botonBorrarPregunta.click(function() {
+      var id = parseInt($('.list-group-item.active').attr('id'));
+      contexto.controlador.eliminarPregunta(id);
+    });
   },
 
   limpiarFormulario: function(){

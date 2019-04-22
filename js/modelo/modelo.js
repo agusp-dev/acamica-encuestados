@@ -7,12 +7,13 @@ var Modelo = function() {
 
   //inicializacion de eventos
   this.preguntaAgregada = new Evento(this);
+  this.preguntaEliminada = new Evento(this);
 };
 
 Modelo.prototype = {
   //se obtiene el id más grande asignado a una pregunta
   obtenerUltimoId: function() {
-    this.preguntas.length > 0 ? this.obtenerIdMasGrande(this.preguntas) : 0;
+    return (this.preguntas.length > 0) ? this.obtenerIdMasGrande(this.preguntas) : 0;
   },
 
   //compara las respuestas de un array (no vacio) y devuelve id mas grande.
@@ -34,6 +35,18 @@ Modelo.prototype = {
     this.preguntas.push(nuevaPregunta);
     this.guardar();
     this.preguntaAgregada.notificar();
+  },
+
+  //se elimina una pregunta
+  eliminarPregunta: function(id) {
+    if (this.preguntas.length > 0) {
+      this.preguntas = this.obtenerNuevoArraySinEliminado(this.preguntas, id);
+    }
+    this.preguntaEliminada.notificar();
+  },
+
+  obtenerNuevoArraySinEliminado: function(array, id) {
+    return array.filter(pregunta => pregunta.id != id);
   },
 
   //se guardan las preguntas
