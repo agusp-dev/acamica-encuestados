@@ -25,10 +25,13 @@ VistaAdministrador.prototype = {
 
   construirElementoPregunta: function(pregunta){
     var contexto = this;
-    var nuevoItem = document.createElement('li');
-    nuevoItem.className = 'list-group-item';
-    nuevoItem.id = pregunta.id;
-    nuevoItem.textContent = pregunta.textoPregunta;
+
+    var $nuevoItem = $("<li>")
+      .addClass("list-group-item")
+      .attr('id', pregunta.id)
+      .text(pregunta.textoPregunta);
+
+
     //completar
     //asignar a nuevoitem un elemento li con clase "list-group-item", id "pregunta.id" y texto "pregunta.textoPregunta" //crear nuevo item? como asignarlo?
     var interiorItem = $('.d-flex');
@@ -38,8 +41,8 @@ VistaAdministrador.prototype = {
       return " " + resp.textoRespuesta;
     }));
 
-    nuevoItem.html($('.d-flex').html()); //OJO CON ESTO. LO COMENTO PORQUE DA ERROR.
-    return nuevoItem;
+    $nuevoItem.html($('.d-flex').html());
+    return $nuevoItem;
   },
 
   reconstruirLista: function() {
