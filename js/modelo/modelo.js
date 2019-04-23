@@ -8,6 +8,7 @@ var Modelo = function() {
   //inicializacion de eventos
   this.preguntaAgregada = new Evento(this);
   this.preguntaEliminada = new Evento(this);
+  this.todoEliminado = new Evento(this);
 };
 
 Modelo.prototype = {
@@ -45,8 +46,22 @@ Modelo.prototype = {
     this.preguntaEliminada.notificar();
   },
 
+  //obtiene nuevo array de preguntas sin incluir al id pasado por parametro.
   obtenerNuevoArraySinEliminado: function(array, id) {
     return array.filter(pregunta => pregunta.id != id);
+  },
+
+  //se elimina todo
+  eliminarTodo: function() {
+    this.eliminarTodasLasPreguntas();
+    this.todoEliminado.notificar();
+  },
+
+  //se eliminan todas las preguntas
+  eliminarTodasLasPreguntas: function() {
+    if (this.preguntas.length > 0) {
+      this.preguntas = [];
+    }
   },
 
   //se guardan las preguntas
