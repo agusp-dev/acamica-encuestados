@@ -75,10 +75,14 @@ VistaAdministrador.prototype = {
     e.botonAgregarPregunta.click(function() {
       var value = e.pregunta.val();
       var respuestas = [];
+      console.log(value);
 
       $('[name="option[]"]').each(function() {
         //completar
-        respuestas.push({'textoRespuesta':$(this).val(), 'cantidad': 0});
+        //no agrega respuestas vacias
+        if ($(this).val().length > 0) {
+          respuestas.push({'textoRespuesta':$(this).val(), 'cantidad': 0});
+        }
       })
       contexto.limpiarFormulario();
       contexto.controlador.agregarPregunta(value, respuestas);
