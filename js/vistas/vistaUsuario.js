@@ -11,6 +11,11 @@ var VistaUsuario = function(modelo, controlador, elementos) {
   this.modelo.preguntaAgregada.suscribir(function() {
     contexto.reconstruirLista();
   });
+
+  this.modelo.votoAgregado.suscribir(function() {
+    //todo
+    contexto.reconstruirGrafico();
+  });
 };
 
 VistaUsuario.prototype = {
@@ -44,40 +49,29 @@ VistaUsuario.prototype = {
 
 
   reconstruirLista: function() {
-
-    console.log('vistaUsuario reconstruirLista');
-
     var listaPreguntas = this.elementos.listaPreguntas;
     listaPreguntas.html('');
     var contexto = this;
     var preguntas = this.modelo.preguntas;
-
-    console.log(preguntas);
-
     preguntas.forEach(function(clave){
       //completar
       //agregar a listaPreguntas un elemento div con valor "clave.textoPregunta", texto "clave.textoPregunta", id "clave.id"
-      var $div = contexto.construirDiv(clave);
-      listaPreguntas.append($div);
-
-      console.log('clave: ' + clave);
-      console.log('div creado: ' + $div);
-
+      listaPreguntas.append(contexto.construirDiv(clave));
       var respuestas = clave.cantidadPorRespuesta;
-      contexto.mostrarRespuestas(listaPreguntas,respuestas, clave);
+      contexto.mostrarRespuestas(listaPreguntas, respuestas, clave);
     })
   },
 
   //Construye elemento pregunta
   construirDiv: function(clave) {
-    console.log('vistaUsuario construirDiv');
-    return $('<div>' + clave.textoPregunta + '</div>')
+    return $('<div>')
     .attr('id', '' + clave.id)
+    .attr('value', clave.textoPregunta)
     .text(clave.textoPregunta);
   },
 
   //muestra respuestas
-  mostrarRespuestas:function(listaPreguntas,respuestas, clave){
+  mostrarRespuestas:function(listaPreguntas, respuestas, clave){
     respuestas.forEach (function(elemento) {
       listaPreguntas.append($('<input>', {
         type: 'radio',
@@ -94,11 +88,13 @@ VistaUsuario.prototype = {
   agregarVotos: function(){
     var contexto = this;
     $('#preguntas').find('div').each(function(){
-        var nombrePregunta = $(this).attr('value');
+        //var nombrePregunta = $(this).attr('value');
         var id = $(this).attr('id');
         var respuestaSeleccionada = $('input[name=' + id + ']:checked').val();
         $('input[name=' + id + ']').prop('checked',false);
-        contexto.controlador.agregarVoto(nombrePregunta,respuestaSeleccionada);
+        $('#nombreUsuario').val('');
+        //se pasa identificador unico en vez de nombre de la pregunta.
+        contexto.controlador.agregarVoto(id, respuestaSeleccionada);
       });
   },
 
