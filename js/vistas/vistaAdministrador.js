@@ -43,18 +43,13 @@ VistaAdministrador.prototype = {
     .addClass("list-group-item")
     .attr('id', '' + pregunta.id)
     .text(pregunta.textoPregunta);
-
-    console.log('id: ' + pregunta.id);
-
     var interiorItem = $('.d-flex');
     var titulo = interiorItem.find('h5');
     titulo.text(pregunta.textoPregunta);
     interiorItem.find('small').text(pregunta.cantidadPorRespuesta.map(function(resp){
       return " " + resp.textoRespuesta;
     }));
-
     $nuevoItem.html($('.d-flex').html());
-    console.log($nuevoItem);
     return $nuevoItem;
   },
 
@@ -75,7 +70,6 @@ VistaAdministrador.prototype = {
     e.botonAgregarPregunta.click(function() {
       var value = e.pregunta.val();
       var respuestas = [];
-      console.log(value);
 
       $('[name="option[]"]').each(function() {
         //completar
