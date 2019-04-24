@@ -13,7 +13,6 @@ var VistaUsuario = function(modelo, controlador, elementos) {
   });
 
   this.modelo.votoAgregado.suscribir(function() {
-    //todo
     contexto.reconstruirGrafico();
   });
 };
@@ -46,7 +45,6 @@ VistaUsuario.prototype = {
       contexto.dibujarGrafico(clave.textoPregunta, listaParaGrafico);
     })
   },
-
 
   reconstruirLista: function() {
     var listaPreguntas = this.elementos.listaPreguntas;
