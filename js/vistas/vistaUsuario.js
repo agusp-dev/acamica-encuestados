@@ -6,58 +6,65 @@ var VistaUsuario = function(modelo, controlador, elementos) {
   this.controlador = controlador;
   this.elementos = elementos;
   var contexto = this;
-
-  //suscripcion a eventos del modelo
-  this.modelo.preguntaAgregada.suscribir(function() {
-    contexto.reconstruirLista();
-  });
-
-  this.modelo.votoAgregado.suscribir(function() {
-    contexto.reconstruirGrafico();
-  });
+  //suscripcion de eventos
+  this.modelo.votoAgregado.suscribir(() => contexto.reconstruirGrafico());
 };
 
 VistaUsuario.prototype = {
-  //muestra la lista por pantalla y agrega el manejo del boton agregar
-  inicializar: function() {
+
+  inicializar() {
     this.reconstruirLista();
-    var elementos = this.elementos;
-    var contexto = this;
-    
-    elementos.botonAgregar.click(function() {
-      contexto.agregarVotos(); 
-    });
-      
     this.reconstruirGrafico();
+    this.configuracionDeBotones();
   },
 
   //reconstruccion de los graficos de torta
-  reconstruirGrafico: function(){
+  reconstruirGrafico() {
     var contexto = this;
-    //obtiene las preguntas del local storage
     var preguntas = this.modelo.preguntas;
-    preguntas.forEach(function(clave){
-      var listaParaGrafico = [[clave.textoPregunta, 'Cantidad']];
+    preguntas.forEach(clave => {
+      var listaParaGrafico = [contexto.crearElementoDeListaParaGrafico(
+        clave.textoPregunta, 'Cantidad')];
       var respuestas = clave.cantidadPorRespuesta;
-      respuestas.forEach (function(elemento) {
-        listaParaGrafico.push([elemento.textoRespuesta,elemento.cantidad]);
+      respuestas.forEach (elemento => {
+        contexto.agregarElementoAListaParaGrafico(
+          listaParaGrafico, elemento.textoRespuesta, elemento.cantidad);
       });
       contexto.dibujarGrafico(clave.textoPregunta, listaParaGrafico);
     })
   },
 
-  reconstruirLista: function() {
-    var listaPreguntas = this.elementos.listaPreguntas;
-    listaPreguntas.html('');
+  //Agrega grafico a la lista
+  agregarElementoAListaParaGrafico(array, respuesta, cantidad) {
+    array.push(this.crearElementoDeListaParaGrafico(respuesta, cantidad));
+  },
+
+  //Retorna nuevo array con valores pasados por parametro
+  crearElementoDeListaParaGrafico(valor1, valor2) {
+    return [valor1, valor2];
+  },
+
+  //Arma lista
+  reconstruirLista() {
     var contexto = this;
+    var listaPreguntas = this.elementos.listaPreguntas;
     var preguntas = this.modelo.preguntas;
-    preguntas.forEach(function(clave){
+    listaPreguntas.html('');
+    preguntas.forEach(clave => {
       //completar
       //agregar a listaPreguntas un elemento div con valor "clave.textoPregunta", texto "clave.textoPregunta", id "clave.id"
-      listaPreguntas.append(contexto.construirDiv(clave));
-      var respuestas = clave.cantidadPorRespuesta;
-      contexto.mostrarRespuestas(listaPreguntas, respuestas, clave);
+      //listaPreguntas.append(contexto.construirDiv(clave));
+      contexto.agregarDivALista(listaPreguntas, clave);
+
+      //var respuestas = clave.cantidadPorRespuesta;
+      //contexto.mostrarRespuestas(listaPreguntas, respuestas, clave);
+      contexto.mostrarRespuestas(listaPreguntas, clave.id, clave.cantidadPorRespuesta);
     })
+  },
+
+  //Agrega div a la lista
+  agregarDivALista(lista, clave) {
+    lista.append(this.construirDiv(clave));
   },
 
   //Construye elemento pregunta
@@ -68,24 +75,41 @@ VistaUsuario.prototype = {
     .text(clave.textoPregunta);
   },
 
-  //muestra respuestas
-  mostrarRespuestas:function(listaPreguntas, respuestas, clave){
-    respuestas.forEach (function(elemento) {
-      listaPreguntas.append($('<input>', {
-        type: 'radio',
-        value: elemento.textoRespuesta,
-        name: clave.id,
-      }));
-      listaPreguntas.append($("<label>", {
-        for: elemento.textoRespuesta,
-        text: elemento.textoRespuesta
-      }));
+  //Muestra respuestas
+  mostrarRespuestas:function(listaPreguntas, idPregunta, listaRespuestas){
+    var contexto = this;
+    listaRespuestas.forEach (respuesta => {
+      contexto.agregarBotonRadioListaPreguntas(
+        listaPreguntas, idPregunta, respuesta.textoRespuesta);
+      contexto.agregarLabelListaPreguntas(
+        listaPreguntas, respuesta.textoRespuesta);
     });
   },
 
-  agregarVotos: function(){
+  //Agrega boton radio a la lista
+  agregarBotonRadioListaPreguntas(listaPreguntas, idPregunta, textoRespuesta) {
+    listaPreguntas.append($('<input>', this.crearBotonRadioRespuesta(idPregunta, textoRespuesta)));
+  },
+
+  //Crea y devuelve elemento boton radio
+  crearBotonRadioRespuesta(idPregunta, textoRespuesta) {
+    return {type: 'radio', value: textoRespuesta, name: idPregunta};
+  },
+
+  //Agrega label a la lista
+  agregarLabelListaPreguntas(listaPreguntas, textoRespuesta) {
+    listaPreguntas.append( $('<label>', this.crearLabelRespuesta(textoRespuesta))) ;
+  },
+
+  //Crea y devuelve elemento label
+  crearLabelRespuesta(textoRespuesta) {
+    return {type: textoRespuesta, text: textoRespuesta};
+  },
+
+  //Agrega votos
+  agregarVotos() {
     var contexto = this;
-    $('#preguntas').find('div').each(function(){
+    $('#preguntas').find('div').each(function() {
         //var nombrePregunta = $(this).attr('value');
         var id = $(this).attr('id');
         var respuestaSeleccionada = $('input[name=' + id + ']:checked').val();
@@ -96,14 +120,10 @@ VistaUsuario.prototype = {
       });
   },
 
-  dibujarGrafico: function(nombre, respuestas){
-    var seVotoAlgunaVez = false;
-    for(var i=1;i<respuestas.length;++i){
-      if(respuestas[i][1]>0){
-        seVotoAlgunaVez = true;
-      }
-    }
+  //Dibuja grafico
+  dibujarGrafico(nombre, respuestas) {
     var contexto = this;
+    var seVotoAlgunaVez = this.seVotoAlgunaVez(respuestas);
     google.charts.load("current", {packages:["corechart"]});
     google.charts.setOnLoadCallback(drawChart);
     function drawChart() {
@@ -127,4 +147,17 @@ VistaUsuario.prototype = {
       }
     }
   },
+
+  //Devuelve booleano que determina si se voto alguna vez
+  seVotoAlgunaVez(respuestas) {
+    return respuestas.some(respuesta => respuesta[1] > 0);
+  },
+
+  //Botones
+  configuracionDeBotones() {
+    var contexto = this;
+    this.elementos.botonAgregar.click(() => {
+      contexto.agregarVotos(); 
+    });
+  }
 };
