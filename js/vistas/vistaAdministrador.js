@@ -6,11 +6,18 @@ var VistaAdministrador = function(modelo, controlador, elementos) {
   this.controlador = controlador;
   this.elementos = elementos;
   var contexto = this;
-  //Suscripción de observadores
+
+  //Suscripción de observadores de modelo
   this.modelo.preguntaAgregada.suscribir(() => contexto.reconstruirLista());
   this.modelo.preguntaEliminada.suscribir(() => contexto.reconstruirLista());
   this.modelo.todoEliminado.suscribir(() => contexto.reconstruirLista());
   this.modelo.preguntaEditada.suscribir(() => contexto.reconstruirLista());
+
+  //Suscripción de observadores de controlador
+  this.controlador.preguntaEstructuraIncorrecta.suscribir(() => contexto.mostrarMensaje(
+    'El campo "Pregunta" no puede estar vacio y debe haber al menos una respuesta.'));
+  this.controlador.nuevaPreguntaVacia.suscribir(() => contexto.mostrarMensaje(
+    'La pregunta no puede estar vacia.'));
 };
 
 VistaAdministrador.prototype = {
@@ -72,14 +79,22 @@ VistaAdministrador.prototype = {
     //Boton borrar todo
     e.botonEditarPregunta.click(() => {
       var id = contexto.obtenerIdElementoPregunta();
-      var nuevoTexto = prompt('Editar Pregunta');
-      contexto.controlador.editarPregunta(id, nuevoTexto);
+      if (id > 0) {
+        var nuevoTexto = prompt('Editar Pregunta');
+        contexto.controlador.editarPregunta(id, nuevoTexto);
+      } else {
+        this.mostrarMensaje('Por favor, seleccione una pregunta.');
+      }
     });
 
     //Boton borrar pregunta
     e.botonBorrarPregunta.click(() => {
       var id = contexto.obtenerIdElementoPregunta();
-      contexto.controlador.eliminarPregunta(id);
+      if (id > 0) {
+        contexto.controlador.eliminarPregunta(id);
+      } else {
+        this.mostrarMensaje('Por favor, seleccione una pregunta.');
+      }
     });
 
     //Boton borrar todo
@@ -107,4 +122,9 @@ VistaAdministrador.prototype = {
   limpiarFormulario() {
     $('.form-group.answer.has-feedback.has-success').remove();
   },
+
+  //Muestra mensaje con alert
+  mostrarMensaje(mensaje) {
+    alert(mensaje);
+  }
 };
