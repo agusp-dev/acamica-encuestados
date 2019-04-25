@@ -6,25 +6,24 @@ var Controlador = function(modelo) {
 };
 
 Controlador.prototype = {
-  agregarPregunta: function(pregunta, respuestas) {
+
+  agregarPregunta(pregunta, respuestas) {
       this.modelo.agregarPregunta(pregunta, respuestas);
   },
 
-  eliminarPregunta: function(idPregunta) {
+  eliminarPregunta(idPregunta) {
     this.modelo.eliminarPregunta(idPregunta);
   },
 
-  eliminarTodo: function() {
+  eliminarTodo() {
     this.modelo.eliminarTodo();
   },
 
-  editarPregunta: function(id, nuevoTexto) {
+  editarPregunta(id, nuevoTexto) {
     this.modelo.editarPregunta(id, nuevoTexto);
   },
 
-  agregarVoto: function(preguntaId, respuesta) {
+  agregarVoto(preguntaId, respuesta) {
     this.modelo.agregarVoto(preguntaId, respuesta);
   }
-
-
 };
