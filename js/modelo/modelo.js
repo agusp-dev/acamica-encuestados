@@ -4,7 +4,6 @@
 var Modelo = function() {
   this.preguntas = this.obtenerPreguntasDesdeLocalStorage();
   this.ultimoId = 0;
-
   //inicializacion de eventos
   this.preguntaAgregada = new Evento(this);
   this.preguntaEliminada = new Evento(this);
@@ -15,12 +14,12 @@ var Modelo = function() {
 
 Modelo.prototype = {
   //se obtiene el id más grande asignado a una pregunta
-  obtenerUltimoId: function() {
+  obtenerUltimoId() {
     return (this.preguntas.length > 0) ? this.obtenerIdMasGrande(this.preguntas) : 0;
   },
 
   //compara las respuestas de un array (no vacio) y devuelve id mas grande.
-  obtenerIdMasGrande: function(array) {
+  obtenerIdMasGrande(array) {
     var idMasGrande = 0;
     array.forEach(pregunta => {
       if (pregunta.id > idMasGrande) {
@@ -31,45 +30,54 @@ Modelo.prototype = {
   },
 
   //se agrega una pregunta dado un nombre y sus respuestas
-  agregarPregunta: function(nombre, respuestas) {
+  agregarPregunta(nombre, respuestas) {
     var id = this.obtenerUltimoId();
     id++;
-    var nuevaPregunta = {'textoPregunta': nombre, 'id': id, 'cantidadPorRespuesta': respuestas};
-    this.preguntas.push(nuevaPregunta);
+    this.agregarPreguntaLista(this.preguntas, nombre, id, respuestas);
     this.guardar();
     this.preguntaAgregada.notificar();
   },
 
-  //se elimina una pregunta
-  eliminarPregunta: function(id) {
+  //Agrega pregunta a la lista de preguntas
+  agregarPreguntaLista(lista, nombre, id, respuestas) {
+    lista.push(this.crearElementoPregunta(nombre, id, respuestas));
+  },
+
+  //Crea elemento pregunta
+  crearElementoPregunta(pregunta, id, respuestas) {
+    return {textoPregunta: pregunta, id: id, cantidadPorRespuesta: respuestas};
+  },
+
+  //Se elimina una pregunta
+  eliminarPregunta(id) {
     if (this.preguntas.length > 0) {
       this.preguntas = this.obtenerNuevoArraySinEliminado(this.preguntas, id);
       this.guardar();
+      this.preguntaEliminada.notificar();
     }
-    this.preguntaEliminada.notificar();
   },
 
-  //obtiene nuevo array de preguntas sin incluir al id pasado por parametro.
-  obtenerNuevoArraySinEliminado: function(array, id) {
+  //obtiene nuevo array de preguntas sin incluir al id pasado por parametro, o lo que es lo mismo, elimina una pregunta.
+  obtenerNuevoArraySinEliminado(array, id) {
     return array.filter(pregunta => pregunta.id != id);
   },
 
-  //se elimina todo
-  eliminarTodo: function() {
+  //Se elimina todo
+  eliminarTodo() {
     this.eliminarTodasLasPreguntas();
     this.guardar();
     this.todoEliminado.notificar();
   },
 
-  //se eliminan todas las preguntas
-  eliminarTodasLasPreguntas: function() {
+  //Se eliminan todas las preguntas
+  eliminarTodasLasPreguntas() {
     if (this.preguntas.length > 0) {
       this.preguntas = [];
     }
   },
 
-  //se edita una pregunta
-  editarPregunta: function(id, nuevoTexto) {
+  //Se edita una pregunta
+  editarPregunta(id, nuevoTexto) {
     if (this.preguntas.length > 0) {
       var pregunta = this.obtenerPregunta(this.preguntas, id);
       if (pregunta != null) {
@@ -80,19 +88,13 @@ Modelo.prototype = {
     }
   },
 
-  //se obtiene pregunta de array, pasando su id
+  //Se obtiene pregunta de array, pasando su id
   obtenerPregunta: function(array, id) {
     var index = array.findIndex(pregunta => pregunta.id == id);
     return (index > -1) ? array[index] : null;
   },
 
-  //se obtiene respuesta de array, pasando su nombre
-  obtenerRespuesta: function(array, nombre) {
-    var index = array.findIndex(respuesta => respuesta.textoRespuesta === nombre);
-    return (index > -1) ? array[index] : null;
-  },
-
-  //se agrega voto a una respuesta de una pregunta
+  //Se agrega voto a una respuesta de una pregunta
   agregarVoto: function(preguntaId, respuesta) {
     if (this.preguntas.length > 0) {
       var pregunta = this.obtenerPregunta(this.preguntas, preguntaId);
@@ -107,8 +109,13 @@ Modelo.prototype = {
     }
   },
 
+  //Se obtiene respuesta de array, pasando su nombre
+  obtenerRespuesta: function(array, nombre) {
+    var index = array.findIndex(respuesta => respuesta.textoRespuesta === nombre);
+    return (index > -1) ? array[index] : null;
+  },
 
-  //se guardan las preguntas
+  //se guardan las preguntas en local storage
   guardar: function() {
     if (this.preguntas != null) {
       this.guardarEnLocalStorage(this.preguntas);
@@ -135,5 +142,4 @@ Modelo.prototype = {
   convertirStringEnArray: function(string) {
     return JSON.parse(string);
   }
-
 };
